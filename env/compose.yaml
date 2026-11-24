@@ -1,0 +1,53 @@
+# Environnement de TP — Atelier Spring Boot
+#
+# La base compta d'Accès aux données, reprise à l'identique : même schéma, mêmes données,
+# même compte applicatif. Tout est jetable : `docker compose down -v` remet l'environnement à zéro.
+#
+# Démarrage :   docker compose up -d
+# Adminer   :   http://localhost:8080   (serveur: db · utilisateur: root · mot de passe: root)
+# Client CLI:   docker compose exec db mariadb -uapp -papp compta
+#
+# Les mots de passe en clair ci-dessous ne valent que pour ce service, publié sur 127.0.0.1 :
+# joignable depuis le poste lui-même, pas depuis le réseau. Dans compta-api, les identifiants se lisent dans l'environnement.
+
+# Un nom de projet propre : sans lui, Compose prendrait celui du dossier, « env », comme
+# l'environnement du cours SQL, et les deux partageraient le même volume.
+name: atelier-spring
+
+services:
+  db:
+    image: mariadb:12.3
+    container_name: atelier-spring-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: compta
+      MARIADB_USER: app
+      MARIADB_PASSWORD: app
+    ports:
+      # Lié au seul poste : la base et ses mots de passe de TP ne sortent pas sur le réseau de la salle.
+      - "127.0.0.1:${DB_PORT:-3306}:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      # Exécuté au PREMIER démarrage seulement ; `down -v` pour le rejouer.
+      - ./data:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  adminer:
+    image: adminer:5
+    container_name: atelier-spring-adminer
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  dbdata:
