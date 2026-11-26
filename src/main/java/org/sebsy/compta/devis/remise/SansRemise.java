@@ -1,11 +1,11 @@
-package org.sebsy.compta.devis;
+package org.sebsy.compta.devis.remise;
 
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
-public class RemiseAucune implements Remise {
+public class SansRemise implements Remise {
 
     @Override
     public BigDecimal taux(int quantite) {

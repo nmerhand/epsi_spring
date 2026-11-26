@@ -1,5 +1,6 @@
 package org.sebsy.compta.devis;
 
+import org.sebsy.compta.devis.remise.Remise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package org.sebsy.compta.devis;
+package org.sebsy.compta.devis.remise;
 
 import java.math.BigDecimal;
 
